@@ -12,7 +12,7 @@
 |---|---|
 | **Runtime** | Node.js + TypeScript (ESNext) |
 | **Framework** | Express 5 |
-| **Database & ORM** | PostgreSQL + Prisma 7 |
+| **Database & ORM** | PostgreSQL + **Prisma 7** (default) or **Drizzle ORM** (alternative) |
 | **Validation** | Zod (body, query, params) |
 | **Auth** | JWT (Access + Refresh in HttpOnly Cookie) |
 | **Authorization** | RBAC (Admin, User, Moderator) |
@@ -78,10 +78,15 @@ StarterKIT/
 │   │       └── httpHandlers.ts    #   Request validator middleware
 │   ├── server.ts                 # Express app assembly
 │   └── index.ts                  # Bootstrap + graceful shutdown
+├── drizzle/                     # Drizzle ORM alternative
+│   ├── schema.ts                #   Table definitions (mirrors Prisma)
+│   ├── relations.ts             #   Drizzle relations
+│   └── seed.ts                  #   Database seeder (Drizzle version)
 ├── .env.template
 ├── biome.json
 ├── docker-compose.yml
 ├── Dockerfile
+├── drizzle.config.ts            # Drizzle Kit config
 ├── package.json
 ├── prisma.config.ts
 ├── tsconfig.json
@@ -219,9 +224,14 @@ If either fails, both are rolled back.
 | `pnpm test:cov` | Run tests with coverage |
 | `pnpm check` | Lint & format (Biome) |
 | `pnpm db:generate` | Generate Prisma client |
-| `pnpm db:migrate` | Run database migrations |
-| `pnpm db:seed` | Seed database |
+| `pnpm db:migrate` | Run Prisma migrations |
+| `pnpm db:seed` | Seed database (Prisma) |
 | `pnpm db:studio` | Open Prisma Studio GUI |
+| `pnpm db:drizzle:generate` | Generate Drizzle migrations |
+| `pnpm db:drizzle:migrate` | Run Drizzle migrations |
+| `pnpm db:drizzle:push` | Push schema to DB (Drizzle) |
+| `pnpm db:drizzle:studio` | Open Drizzle Studio GUI |
+| `pnpm db:drizzle:seed` | Seed database (Drizzle) |
 
 ---
 
@@ -294,6 +304,57 @@ In `src/api-docs/openAPIDocumentGenerator.ts`, add your registry.
 pnpm db:migrate
 pnpm db:generate
 ```
+
+---
+
+## 🔀 Drizzle ORM Alternative
+
+This kit includes **Drizzle ORM** as a drop-in alternative to Prisma. Both ORMs share the same table structure — switch with a single import change per repository.
+
+### Prisma vs Drizzle — When to Use Which?
+
+| Aspect | Prisma 7 (Default) | Drizzle ORM |
+|---|---|---|
+| **Schema** | `schema.prisma` (DSL) | TypeScript code |
+| **Migrations** | `prisma migrate` | `drizzle-kit generate/migrate` |
+| **Query Style** | High-level API | SQL-like builder |
+| **Type Safety** | Generated client | Schema-inferred |
+| **Bundle Size** | Larger (engine binary) | Lightweight |
+| **Best For** | Rapid development | Performance, fine-grained control |
+
+### How to Switch to Drizzle
+
+**Step 1:** Change repository imports (1 line per file):
+
+```diff
+# In authService.ts / userService.ts / resourceService.ts
+- import { AuthRepository } from "@/api/auth/authRepository";
++ import { AuthRepository } from "@/api/auth/authRepository.drizzle";
+```
+
+**Step 2:** Use Drizzle migration commands instead of Prisma:
+
+```bash
+# Generate & run Drizzle migrations
+pnpm db:drizzle:push          # Quick push (dev)
+pnpm db:drizzle:generate      # Generate SQL migration
+pnpm db:drizzle:migrate       # Apply migrations (prod)
+pnpm db:drizzle:seed           # Seed with Drizzle
+pnpm db:drizzle:studio         # Visual DB browser
+```
+
+That's it! No changes needed to Service, Controller, or Route files.
+
+### Drizzle Files
+
+| File | Purpose |
+|---|---|
+| `drizzle/schema.ts` | Table definitions (pgTable, pgEnum) |
+| `drizzle/relations.ts` | Drizzle relation definitions |
+| `drizzle/seed.ts` | Database seeder |
+| `drizzle.config.ts` | Drizzle Kit configuration |
+| `src/common/lib/drizzle.ts` | Client singleton |
+| `*.drizzle.ts` | Alternative repository implementations |
 
 ---
 

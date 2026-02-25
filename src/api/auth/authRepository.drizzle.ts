@@ -1,0 +1,65 @@
+/**
+ * ╔══════════════════════════════════════════════════════════╗
+ * ║  DRIZZLE ORM ALTERNATIVE                                 ║
+ * ║  Same API as authRepository.ts — swap import to switch.  ║
+ * ║  Service & Controller remain unchanged.                  ║
+ * ╚══════════════════════════════════════════════════════════╝
+ */
+
+import { eq } from "drizzle-orm";
+
+import type { UserWithSecrets } from "@/api/user/userModel";
+import { db } from "@/common/lib/drizzle";
+import { logger } from "@/server";
+
+import { users } from "../../../drizzle/schema";
+
+export class AuthRepository {
+    async findByEmailAsync(email: string): Promise<UserWithSecrets | null> {
+        try {
+            const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+            return (user as UserWithSecrets) || null;
+        } catch (error) {
+            logger.error({ error }, "Database error in AuthRepository.findByEmailAsync");
+            throw error;
+        }
+    }
+
+    async createUserAsync(userData: Omit<UserWithSecrets, "id" | "createdAt" | "updatedAt">): Promise<UserWithSecrets> {
+        try {
+            const [newUser] = await db.insert(users).values(userData).returning();
+            return newUser as UserWithSecrets;
+        } catch (error) {
+            logger.error({ error }, "Database error in AuthRepository.createUserAsync");
+            throw error;
+        }
+    }
+
+    async updateRefreshTokenHashAsync(userId: number, refreshTokenHash: string): Promise<void> {
+        try {
+            await db.update(users).set({ refreshTokenHash }).where(eq(users.id, userId));
+        } catch (error) {
+            logger.error({ error }, "Database error in AuthRepository.updateRefreshTokenHashAsync");
+            throw error;
+        }
+    }
+
+    async clearRefreshTokenHashAsync(userId: number): Promise<void> {
+        try {
+            await db.update(users).set({ refreshTokenHash: null }).where(eq(users.id, userId));
+        } catch (error) {
+            logger.error({ error }, "Database error in AuthRepository.clearRefreshTokenHashAsync");
+            throw error;
+        }
+    }
+
+    async findByIdAsync(userId: number): Promise<UserWithSecrets | null> {
+        try {
+            const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+            return (user as UserWithSecrets) || null;
+        } catch (error) {
+            logger.error({ error }, "Database error in AuthRepository.findByIdAsync");
+            throw error;
+        }
+    }
+}

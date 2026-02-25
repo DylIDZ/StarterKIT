@@ -21,7 +21,8 @@
     },
     "include": [
         "src/**/*",
-        "generated/**/*"
+        "generated/**/*",
+        "drizzle/**/*"
     ],
     "exclude": [
         "node_modules"
