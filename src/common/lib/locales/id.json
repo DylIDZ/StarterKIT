@@ -1,0 +1,30 @@
+{
+    "common": {
+        "success": "Operasi berhasil",
+        "error": "Terjadi kesalahan",
+        "notFound": "Data tidak ditemukan",
+        "unauthorized": "Anda tidak memiliki akses",
+        "forbidden": "Akses ditolak",
+        "validationError": "Validasi gagal",
+        "serverError": "Kesalahan server internal"
+    },
+    "auth": {
+        "loginSuccess": "Login berhasil",
+        "loginFailed": "Email atau password salah",
+        "logoutSuccess": "Logout berhasil",
+        "tokenExpired": "Sesi Anda telah berakhir",
+        "registerSuccess": "Pendaftaran berhasil",
+        "passwordChanged": "Password berhasil diubah"
+    },
+    "payment": {
+        "created": "Pembayaran berhasil dibuat",
+        "pending": "Pembayaran menunggu konfirmasi",
+        "success": "Pembayaran berhasil",
+        "failed": "Pembayaran gagal",
+        "expired": "Pembayaran telah kedaluwarsa"
+    },
+    "email": {
+        "sent": "Email berhasil dikirim",
+        "sendFailed": "Gagal mengirim email"
+    }
+}

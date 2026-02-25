@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Invoice #{{invoiceNumber}}</title>
+  <style>
+    body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f7; }
+    .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; padding: 32px; text-align: center; }
+    .header h1 { margin: 0; font-size: 28px; }
+    .header p { margin: 8px 0 0; opacity: 0.9; }
+    .content { padding: 32px; }
+    .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; color: #555; }
+    .info-row span:first-child { font-weight: 600; color: #333; }
+    .table-container { margin: 24px 0; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { background: #f8f9fa; padding: 12px; text-align: left; font-weight: 600; color: #333; border-bottom: 2px solid #dee2e6; }
+    tbody td { padding: 12px; border-bottom: 1px solid #eee; color: #555; }
+    .total-row { background: #f8f9fa; }
+    .total-row td { font-weight: 700; color: #333; font-size: 16px; }
+    .footer { background: #f8f9fa; padding: 24px; text-align: center; color: #888; font-size: 12px; }
+    .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .badge-paid { background: #d4edda; color: #155724; }
+    .badge-pending { background: #fff3cd; color: #856404; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>INVOICE</h1>
+      <p>#{{invoiceNumber}}</p>
+    </div>
+
+    <div class="content">
+      <div style="margin-bottom: 24px;">
+        <div class="info-row">
+          <span>Date:</span>
+          <span>{{date}}</span>
+        </div>
+        <div class="info-row">
+          <span>Customer:</span>
+          <span>{{customerName}}</span>
+        </div>
+        <div class="info-row">
+          <span>Email:</span>
+          <span>{{customerEmail}}</span>
+        </div>
+        <div class="info-row">
+          <span>Status:</span>
+          <span class="badge {{#if isPaid}}badge-paid{{else}}badge-pending{{/if}}">
+            {{#if isPaid}}PAID{{else}}PENDING{{/if}}
+          </span>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Qty</th>
+              <th>Price</th>
+              <th>Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each items}}
+            <tr>
+              <td>{{this.name}}</td>
+              <td>{{this.quantity}}</td>
+              <td>Rp {{this.price}}</td>
+              <td>Rp {{this.subtotal}}</td>
+            </tr>
+            {{/each}}
+            <tr class="total-row">
+              <td colspan="3">TOTAL</td>
+              <td>Rp {{totalAmount}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {{#if paymentUrl}}
+      <div style="text-align: center; margin: 24px 0;">
+        <a href="{{paymentUrl}}" style="display: inline-block; padding: 12px 32px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; text-decoration: none; border-radius: 6px; font-weight: 600;">
+          Pay Now
+        </a>
+      </div>
+      {{/if}}
+    </div>
+
+    <div class="footer">
+      <p>Thank you for your purchase!</p>
+      <p>{{companyName}} &mdash; {{companyAddress}}</p>
+    </div>
+  </div>
+</body>
+</html>

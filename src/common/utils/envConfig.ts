@@ -25,6 +25,44 @@ const envSchema = z.object({
     JWT_ACCESS_EXPIRY: z.string().default("15m"),
 
     JWT_REFRESH_EXPIRY: z.string().default("7d"),
+
+    // ─── Payment Gateway ────────────────────────────────────────────
+    PAYMENT_PROVIDER: z.enum(["midtrans", "xendit"]).default("midtrans").optional(),
+    MIDTRANS_SERVER_KEY: z.string().optional(),
+    MIDTRANS_CLIENT_KEY: z.string().optional(),
+    MIDTRANS_IS_PRODUCTION: z.coerce.boolean().default(false).optional(),
+    XENDIT_SECRET_KEY: z.string().optional(),
+    XENDIT_WEBHOOK_TOKEN: z.string().optional(),
+
+    // ─── Cloud Storage (Supabase) ───────────────────────────────────
+    SUPABASE_URL: z.string().url().optional(),
+    SUPABASE_SERVICE_KEY: z.string().optional(),
+    SUPABASE_STORAGE_BUCKET: z.string().default("uploads").optional(),
+
+    // ─── Mailer (Brevo SMTP) ────────────────────────────────────────
+    SMTP_HOST: z.string().default("smtp-relay.brevo.com").optional(),
+    SMTP_PORT: z.coerce.number().default(587).optional(),
+    SMTP_USER: z.string().optional(),
+    SMTP_PASS: z.string().optional(),
+    MAIL_FROM_NAME: z.string().default("StarterKit App").optional(),
+    MAIL_FROM_ADDRESS: z.string().email().optional(),
+
+    // ─── Redis (Caching + Queue) ────────────────────────────────────
+    REDIS_URL: z.string().default("redis://localhost:6379").optional(),
+
+    // ─── WhatsApp (Fonnte) ──────────────────────────────────────────
+    FONNTE_API_TOKEN: z.string().optional(),
+    FONNTE_API_URL: z.string().url().default("https://api.fonnte.com").optional(),
+
+    // ─── Geolocation (Nominatim + OSRM) ─────────────────────────────
+    NOMINATIM_BASE_URL: z.string().url().default("https://nominatim.openstreetmap.org").optional(),
+    OSRM_BASE_URL: z.string().url().default("http://localhost:5000").optional(),
+
+    // ─── Google Authenticator (2FA) ─────────────────────────────────
+    TWO_FACTOR_APP_NAME: z.string().default("StarterKitApp").optional(),
+
+    // ─── Scheduler ──────────────────────────────────────────────────
+    SCHEDULER_ENABLED: z.coerce.boolean().default(true).optional(),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);

@@ -1,0 +1,30 @@
+{
+    "common": {
+        "success": "Operation successful",
+        "error": "An error occurred",
+        "notFound": "Resource not found",
+        "unauthorized": "You are not authorized",
+        "forbidden": "Access denied",
+        "validationError": "Validation failed",
+        "serverError": "Internal server error"
+    },
+    "auth": {
+        "loginSuccess": "Login successful",
+        "loginFailed": "Invalid email or password",
+        "logoutSuccess": "Logged out successfully",
+        "tokenExpired": "Your session has expired",
+        "registerSuccess": "Registration successful",
+        "passwordChanged": "Password changed successfully"
+    },
+    "payment": {
+        "created": "Payment created successfully",
+        "pending": "Payment is pending",
+        "success": "Payment completed successfully",
+        "failed": "Payment failed",
+        "expired": "Payment has expired"
+    },
+    "email": {
+        "sent": "Email sent successfully",
+        "sendFailed": "Failed to send email"
+    }
+}

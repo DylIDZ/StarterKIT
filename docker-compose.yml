@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-# Docker Compose — App + PostgreSQL
+# Docker Compose — App + PostgreSQL + Redis
 # ──────────────────────────────────────────────
 # Usage:
 #   docker compose up -d        # Start all services
@@ -26,6 +26,20 @@ services:
       timeout: 5s
       retries: 5
 
+  # ─── Redis (Caching + BullMQ Queue) ─────────
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # ─── Application ────────────────────────────
   app:
     build:
@@ -46,10 +60,15 @@ services:
       JWT_REFRESH_EXPIRY: 7d
       COMMON_RATE_LIMIT_WINDOW_MS: 1000
       COMMON_RATE_LIMIT_MAX_REQUESTS: 100
+      REDIS_URL: redis://redis:6379
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
 volumes:
   postgres_data:
+    driver: local
+  redis_data:
     driver: local

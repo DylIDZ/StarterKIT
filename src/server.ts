@@ -6,9 +6,11 @@ import { pino } from "pino";
 
 import { healthCheckRouter } from "@/api/healthCheck/healthCheckRouter";
 import { authRouter } from "@/api/routes/authRoute";
+import { demoRouter } from "@/api/routes/demoRoute";
 import { resourceRouter } from "@/api/routes/resourceRoute";
 import { userRouter } from "@/api/routes/userRoute";
 import { openAPIRouter } from "@/api-docs/openAPIRouter";
+import { auditMiddleware } from "@/common/lib/audit";
 import errorHandler from "@/common/middleware/errorHandler";
 import rateLimiter from "@/common/middleware/rateLimiter";
 import requestLogger from "@/common/middleware/requestLogger";
@@ -31,12 +33,16 @@ app.use(rateLimiter);
 // ─── Request Logging ───────────────────────────────────────────────
 app.use(requestLogger);
 
+// ─── Audit Logging (auto-track POST/PUT/PATCH/DELETE) ──────────────
+app.use(auditMiddleware());
+
 // ─── API Routes ────────────────────────────────────────────────────
 const apiRouter = express.Router();
 apiRouter.use("/health-check", healthCheckRouter);
 apiRouter.use("/auth", authRouter);
 apiRouter.use("/users", userRouter);
 apiRouter.use("/resources", resourceRouter);
+apiRouter.use("/demo", demoRouter);
 
 // Health-check at root for quick monitoring
 app.use("/health-check", healthCheckRouter);
