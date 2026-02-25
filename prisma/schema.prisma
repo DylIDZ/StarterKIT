@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── User & Authentication ──────────────────────────────────────────
+
+model User {
+  id               Int       @id @default(autoincrement())
+  email            String    @unique
+  passwordHash     String
+  refreshTokenHash String?
+  role             UserRole  @default(USER)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  // Relations
+  profile          Profile?
+  resources        Resource[]
+
+  @@index([email])
+  @@map("users")
+}
+
+// ─── Profile (1:1 with User) ────────────────────────────────────────
+
+model Profile {
+  id        Int      @id @default(autoincrement())
+  firstName String?
+  lastName  String?
+  bio       String?
+  avatarUrl String?
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  userId Int  @unique
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+// ─── Roles & Permissions (RBAC) ─────────────────────────────────────
+
+enum UserRole {
+  ADMIN
+  USER
+  MODERATOR
+}
+
+model Permission {
+  id      Int              @id @default(autoincrement())
+  action  String           // e.g., "create", "read", "update", "delete"
+  subject String           // e.g., "User", "Resource", "Profile"
+
+  // Relations
+  roles   RolePermission[]
+
+  @@unique([action, subject])
+  @@map("permissions")
+}
+
+model RolePermission {
+  id           Int        @id @default(autoincrement())
+  role         UserRole
+  permissionId Int
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([role, permissionId])
+  @@map("role_permissions")
+}
+
+// ─── Resource (Generic CRUD Boilerplate) ────────────────────────────
+
+model Resource {
+  id          Int            @id @default(autoincrement())
+  title       String
+  description String?
+  content     String?
+  status      ResourceStatus @default(DRAFT)
+  category    String?
+  tags        String[]       @default([])
+  metadata    Json?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  // Relations
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([category])
+  @@map("resources")
+}
+
+enum ResourceStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}

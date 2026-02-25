@@ -1,0 +1,55 @@
+# ──────────────────────────────────────────────
+# Docker Compose — App + PostgreSQL
+# ──────────────────────────────────────────────
+# Usage:
+#   docker compose up -d        # Start all services
+#   docker compose down          # Stop all services
+#   docker compose logs -f app   # Follow app logs
+# ──────────────────────────────────────────────
+
+services:
+  # ─── PostgreSQL Database ────────────────────
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: starterkit
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Application ────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      NODE_ENV: production
+      PORT: 8080
+      HOST: 0.0.0.0
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/starterkit?schema=public
+      CORS_ORIGIN: http://localhost:3000
+      JWT_SECRET: change-this-to-a-secure-random-string-at-least-32-chars
+      JWT_REFRESH_SECRET: change-this-to-another-secure-random-string-min-32-chars
+      JWT_ACCESS_EXPIRY: 15m
+      JWT_REFRESH_EXPIRY: 7d
+      COMMON_RATE_LIMIT_WINDOW_MS: 1000
+      COMMON_RATE_LIMIT_MAX_REQUESTS: 100
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+    driver: local
